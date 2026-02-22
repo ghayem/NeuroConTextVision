@@ -9,6 +9,7 @@ import torch.nn as nn
 from monai.networks.nets import ViT
 import torch.nn.functional as F
 import yaml
+import pandas as pd
 
 class ViTBackboneNet(nn.Module):
     def __init__(self, simclr_ckpt_path):
@@ -150,7 +151,7 @@ class SingleScanModelQuad(nn.Module):
         return output 
     
 # -----------------------
-# 1) Load backbone
+# Load backbone
 # -----------------------
 backbone = ViTBackboneNet("./checkpoints/BrainIAC.ckpt")
 backbone.eval()
@@ -159,7 +160,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 backbone.to(device)
 
 # -----------------------
-# 2) Fonction preprocessing
+# Fonction preprocessing
 # -----------------------
 def preprocess_nifti(path):
     img = nib.load(path)
@@ -185,25 +186,71 @@ def preprocess_nifti(path):
     return tensor  # shape (1,96,96,96)
 
 # -----------------------
-# 3) Extraction
+# Extraction
 # -----------------------
 KDE_DIR = "./KDE_samples/KDE_samples"
 nii_paths = sorted(glob(os.path.join(KDE_DIR, "pmid_*.nii.gz")))
 
-all_embeddings = []
+
+embeddings_with_pids = []
 
 with torch.no_grad():
-    for path in nii_paths:
-
+    for idx, path in enumerate(nii_paths, 1):
+        #  EXTRACT PID FROM FILENAME
+        filename = os.path.basename(path)
+        pid = filename.split('_')[1].split('.')[0]
+        
+        # Preprocess and extract embedding
         tensor = preprocess_nifti(path)
         tensor = tensor.unsqueeze(0).to(device)  
-
         embedding = backbone(tensor)  
-        all_embeddings.append(embedding.cpu())
+        
+        embeddings_with_pids.append((embedding.cpu(), pid))
+        
+        # Print progress
+        print(f"[{idx}/{len(nii_paths)}] Processed: {filename} → PID: {pid}")
 
-all_embeddings = torch.cat(all_embeddings, dim=0)
+print("-" * 100)
+#  PRINT ALL FEATURES + PID AT END
+# -----------------------
+print("\n" + "-" * 100)
+print(" EMBEDDINGS OUTPUT (Features + PID)")
+print("-" * 100)
+print(f"{'Feature_0':<12} {'Feature_1':<12} {'Feature_2':<12} ... {'Feature_767':<12} {'PID':<15}")
+print("-" * 100)
 
-for n in range(all_embeddings.shape[0]):
-    print(f"Embedding for sample {n}: {all_embeddings[n].numpy()}")
+for idx, (embedding, pid) in enumerate(embeddings_with_pids, 1):
+    # Convert to numpy and flatten
+    emb_np = embedding.numpy().flatten()
+    
+    # Print first 3 features + last feature + PID
+    print(f"{emb_np[0]:<12.4f} {emb_np[1]:<12.4f} {emb_np[2]:<12.4f} ... {emb_np[-1]:<12.4f} {pid:<15}")
+    
 
-print("Final embedding shape:", all_embeddings.shape)
+
+print("-" * 100)
+print(f"\n Total samples: {len(embeddings_with_pids)}")
+print(f" Embedding dimensions: {embeddings_with_pids[0][0].shape[1]}")
+print(f" Sample PIDs: {[pid for _, pid in embeddings_with_pids]}")
+print("-" * 100)
+# SAVE TO CSV (PID AT END)
+# -----------------------
+# Convert to numpy arrays
+embeddings = [emb.numpy().flatten() for emb, _ in embeddings_with_pids]
+pids = [pid for _, pid in embeddings_with_pids]
+
+# Create DataFrame with PID at END
+embedding_columns = [f'feature_{i}' for i in range(embeddings[0].shape[0])]
+df = pd.DataFrame(embeddings, columns=embedding_columns)
+df['PID'] = pids  # Add PID as LAST column
+
+# Save to CSV
+os.makedirs("results", exist_ok=True)
+output_file = "results/embeddings_with_pid_at_end.csv"
+df.to_csv(output_file, index=False)
+
+print(f"\n Saved to: {output_file}")
+print(f"   Shape: {df.shape} (rows × columns)")
+print(f"   Columns: {df.columns[:3].tolist()} ... {df.columns[-2:].tolist()}")
+print("-" * 100)
+
