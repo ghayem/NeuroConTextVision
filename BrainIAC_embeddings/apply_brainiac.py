@@ -153,7 +153,7 @@ class SingleScanModelQuad(nn.Module):
 # -----------------------
 # Load backbone
 # -----------------------
-backbone = ViTBackboneNet("./checkpoints/BrainIAC.ckpt")
+backbone = ViTBackboneNet("BrainIAC_embeddings/checkpoints/BrainIAC.ckpt")
 backbone.eval()
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -188,7 +188,7 @@ def preprocess_nifti(path):
 # -----------------------
 # Extraction
 # -----------------------
-KDE_DIR = "./KDE_samples/KDE_samples"
+KDE_DIR = "data/KDE_samples/KDE_samples"
 nii_paths = sorted(glob(os.path.join(KDE_DIR, "pmid_*.nii.gz")))
 
 
@@ -245,8 +245,8 @@ df = pd.DataFrame(embeddings, columns=embedding_columns)
 df['PID'] = pids  # Add PID as LAST column
 
 # Save to CSV
-os.makedirs("results", exist_ok=True)
-output_file = "results/embeddings_with_pid_at_end.csv"
+os.makedirs("BrainIAC_embeddings/results", exist_ok=True)
+output_file = "BrainIAC_embeddings/results/embeddings_with_pid_at_end.csv"
 df.to_csv(output_file, index=False)
 
 print(f"\n Saved to: {output_file}")

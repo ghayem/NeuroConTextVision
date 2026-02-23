@@ -1,0 +1,4 @@
+1. create an environment using python 3.9
+2.  "pip install -r requirements.txt"
+3. download BrainIAC.ckpt from https://www.dropbox.com/scl/fo/i51xt63roognvt7vuslbl/AG99uZljziHss5zJz4HiFis?rlkey=9w55le6tslwxlfz6c0viylmjb&e=1&st=b9cnvwh8&dl=0
+and place it in BrainIAC_embeddings/checkpoints
