@@ -1,0 +1,51 @@
+# ---------------------
+# Python
+# ---------------------
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# ---------------------
+# Virtual environments
+# ---------------------
+.venv/
+venv/
+ENV/
+env/
+*.env
+
+# ---------------------
+# Byte-compiled / temporary files
+# ---------------------
+*.log
+*.tmp
+*.bak
+*.swp
+
+# ---------------------
+# Data & outputs
+# ---------------------
+brainiac/results/
+segvol/results
+*.npy
+*.npz
+*.ckpt
+*.h5
+*.pkl
+*.ckpt
+
+# ---------------------
+# IDEs / editors
+# ---------------------
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# ---------------------
+# Others
+# ---------------------
+*.DS_Store
+uv.lock
