@@ -24,6 +24,7 @@ curl -LsSf https://astral-sh.uv.install.sh | sh
 
 # Sync the environment
 uv sync
+```
 
 3. **Add your KDE NIfTI files** in:
 
