@@ -81,7 +81,7 @@ print("="*100)
 # -----------------------
 # Directories for saving
 # -----------------------
-EMBED_DIR = "results/embeddings"
+EMBED_DIR = "embeddings"
 NPY_DIR = os.path.join(EMBED_DIR, "npy")
 CSV_DIR = os.path.join(EMBED_DIR, "csv")
 os.makedirs(NPY_DIR, exist_ok=True)
