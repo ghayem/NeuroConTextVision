@@ -150,6 +150,8 @@ class SingleScanModelQuad(nn.Module):
         output = self.classifier(merged_features)
         return output 
     
+
+
 # -----------------------
 # Load backbone
 # -----------------------
@@ -191,12 +193,18 @@ def preprocess_nifti(path):
 KDE_DIR = "./KDE_samples/KDE_samples"
 nii_paths = sorted(glob(os.path.join(KDE_DIR, "pmid_*.nii.gz")))
 
+print("=" * 100)
+print("BRAINIAC EMBEDDING EXTRACTION")
+print("=" * 100)
+print(f"Processing directory: {KDE_DIR}")
+print(f"Found {len(nii_paths)} NIfTI files")
+print("=" * 100)
 
 embeddings_with_pids = []
 
 with torch.no_grad():
     for idx, path in enumerate(nii_paths, 1):
-        #  EXTRACT PID FROM FILENAME
+        # EXTRACT PID FROM FILENAME
         filename = os.path.basename(path)
         pid = filename.split('_')[1].split('.')[0]
         
@@ -210,47 +218,53 @@ with torch.no_grad():
         # Print progress
         print(f"[{idx}/{len(nii_paths)}] Processed: {filename} → PID: {pid}")
 
-print("-" * 100)
-#  PRINT ALL FEATURES + PID AT END
+print("=" * 100)
+
 # -----------------------
-print("\n" + "-" * 100)
-print(" EMBEDDINGS OUTPUT (Features + PID)")
-print("-" * 100)
-print(f"{'Feature_0':<12} {'Feature_1':<12} {'Feature_2':<12} ... {'Feature_767':<12} {'PID':<15}")
-print("-" * 100)
+# SAVE INDIVIDUAL EMBEDDINGS (One file per PID)
+# -----------------------
+INDIVIDUAL_DIR = "results/individual_embeddings"
+os.makedirs(INDIVIDUAL_DIR, exist_ok=True)
+
+print("\n" + "=" * 100)
+print("SAVING INDIVIDUAL EMBEDDINGS")
+print("=" * 100)
 
 for idx, (embedding, pid) in enumerate(embeddings_with_pids, 1):
-    # Convert to numpy and flatten
+    # Convert to numpy
     emb_np = embedding.numpy().flatten()
     
-    # Print first 3 features + last feature + PID
-    print(f"{emb_np[0]:<12.4f} {emb_np[1]:<12.4f} {emb_np[2]:<12.4f} ... {emb_np[-1]:<12.4f} {pid:<15}")
+    # Save as .npy file (efficient for ML)
+    npy_path = os.path.join(INDIVIDUAL_DIR, f"pid_{pid}_embedding.npy")
+    np.save(npy_path, emb_np)
     
+    # save as .csv for readability
+    csv_path = os.path.join(INDIVIDUAL_DIR, f"pid_{pid}_embedding.csv")
+    pd.DataFrame([emb_np], columns=[f'feature_{i}' for i in range(len(emb_np))]).to_csv(csv_path, index=False)
+    
+    print(f"[{idx}/{len(embeddings_with_pids)}] Saved: {npy_path} ({len(emb_np)} features)")
+
+print("=" * 100)
+print(f"All individual embeddings saved to: {INDIVIDUAL_DIR}/")
+print(f"Files created: {len(embeddings_with_pids)} embedding files")
+print("=" * 100)
 
 
-print("-" * 100)
-print(f"\n Total samples: {len(embeddings_with_pids)}")
-print(f" Embedding dimensions: {embeddings_with_pids[0][0].shape[1]}")
-print(f" Sample PIDs: {[pid for _, pid in embeddings_with_pids]}")
-print("-" * 100)
-# SAVE TO CSV (PID AT END)
+
 # -----------------------
-# Convert to numpy arrays
-embeddings = [emb.numpy().flatten() for emb, _ in embeddings_with_pids]
-pids = [pid for _, pid in embeddings_with_pids]
+# SUMMARY
+# -----------------------
+print("\n" + "=" * 100)
+print("EXTRACTION COMPLETE")
+print("=" * 100)
+print(f"Individual embeddings: {INDIVIDUAL_DIR}/")
+print(f"   - {len(embeddings_with_pids)} .npy files (for ML loading)")
+print(f"   - {len(embeddings_with_pids)} .csv files (for human readability)")
+print(f"Total samples: {len(embeddings_with_pids)}")
+print(f"Embedding dimensions: {embeddings_with_pids[0][0].shape[1]}")
+print("=" * 100)
 
-# Create DataFrame with PID at END
-embedding_columns = [f'feature_{i}' for i in range(embeddings[0].shape[0])]
-df = pd.DataFrame(embeddings, columns=embedding_columns)
-df['PID'] = pids  # Add PID as LAST column
 
-# Save to CSV
-os.makedirs("results", exist_ok=True)
-output_file = "results/embeddings_with_pid_at_end.csv"
-df.to_csv(output_file, index=False)
 
-print(f"\n Saved to: {output_file}")
-print(f"   Shape: {df.shape} (rows × columns)")
-print(f"   Columns: {df.columns[:3].tolist()} ... {df.columns[-2:].tolist()}")
-print("-" * 100)
+
 
