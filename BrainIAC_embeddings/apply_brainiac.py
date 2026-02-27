@@ -190,7 +190,7 @@ def preprocess_nifti(path):
 # -----------------------
 # Extraction
 # -----------------------
-KDE_DIR = "./KDE_samples/KDE_samples"
+KDE_DIR = "./KDE_samples"
 nii_paths = sorted(glob(os.path.join(KDE_DIR, "pmid_*.nii.gz")))
 
 print("=" * 100)
@@ -238,7 +238,7 @@ for idx, (embedding, pid) in enumerate(embeddings_with_pids, 1):
     npy_path = os.path.join(INDIVIDUAL_DIR, f"pid_{pid}_embedding.npy")
     np.save(npy_path, emb_np)
     
-    # save as .csv for readability
+    # Also save as .csv for readability
     csv_path = os.path.join(INDIVIDUAL_DIR, f"pid_{pid}_embedding.csv")
     pd.DataFrame([emb_np], columns=[f'feature_{i}' for i in range(len(emb_np))]).to_csv(csv_path, index=False)
     
