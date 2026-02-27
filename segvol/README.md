@@ -5,3 +5,4 @@ run the following command:
 ```bash
 python apply_segvol.py
 ```
+> results are saved inside `segvol/embeddings`
