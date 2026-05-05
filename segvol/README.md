@@ -3,6 +3,6 @@ Extract deep volumetric embeddings from KDE brain maps using SegVol.
 
 run the following command:
 ```bash
-python apply_segvol.py
+python extract_segvol_embeddings.py
 ```
 > results are saved inside `segvol/embeddings`
