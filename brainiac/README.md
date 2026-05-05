@@ -5,7 +5,7 @@ Extract deep volumetric embeddings from KDE brain maps using BrainIAC
 
 2. run the following command:
 ```bash
-python apply_brainiac.py
+python extract_brainiac_embeddings.py
 ```
 > results are saved inside `brainiac/embeddings`
 
