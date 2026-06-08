@@ -84,7 +84,7 @@ The model is a Transformer-based encoder that maps brain patch embeddings to a l
 
 Download the pretrained weights and place them in the `model/` folder:
 
-[Download model weights (final_model.pt)]([https://drive.google.com/uc?export=download&id=YOUR_FILE_ID](https://drive.google.com/file/d/1jHIBic2bH94cH4aCuHtaAQzky-xMMtTg/view?usp=sharing))
+📥 **[Download model weights (brainiac.pt)](https://drive.google.com/uc?export=download&id=1jHIBic2bH94cH4aCuHtaAQzky-xMMtTg)**
 
 ```
 model/
