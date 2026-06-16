@@ -36,7 +36,7 @@ Files must be named like: `pmid_<PMID>.nii.gz`.
 
 ## Embeddings Extraction
 
-* **BrainIAC**: See `brainiac/README.md`
-* **SegVol**: See `segvol/README.md`
+* **Docs**: See `brainiac/README.md`
+* **Dataset**: [here] (https://filesender.renater.fr/?s=download&token=b260710c-03ae-41af-9e02-87834fb48ffb)
 
 > Both pipelines save embeddings progressively; partial results are preserved in case of interruption.
